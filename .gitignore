@@ -39,4 +39,7 @@ ehthumbs.db
 Thumbs.db
 .actrc*
 
+# Node.js dependencies
+node_modules/
+
 __pycache__/

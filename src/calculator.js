@@ -6,7 +6,50 @@
 //   *  multiplication
 //   /  division
 
-const [,, leftArg, operator, rightArg] = process.argv;
+function add(left, right) {
+  return left + right;
+}
+
+function subtract(left, right) {
+  return left - right;
+}
+
+function multiply(left, right) {
+  return left * right;
+}
+
+function divide(left, right) {
+  if (right === 0) {
+    throw new Error('Division by zero is not allowed.');
+  }
+  return left / right;
+}
+
+function isValidNumber(value) {
+  return !Number.isNaN(Number(value));
+}
+
+function parseOperand(value) {
+  if (!isValidNumber(value)) {
+    throw new Error(`Invalid number: ${value}`);
+  }
+  return Number(value);
+}
+
+function calculate(left, right, operator) {
+  switch (operator) {
+    case '+':
+      return add(left, right);
+    case '-':
+      return subtract(left, right);
+    case '*':
+      return multiply(left, right);
+    case '/':
+      return divide(left, right);
+    default:
+      throw new Error(`Unsupported operator '${operator}'.`);
+  }
+}
 
 function printUsage() {
   console.log('Usage: node src/calculator.js <left> <operator> <right>');
@@ -16,47 +59,36 @@ function printUsage() {
   console.log('  node src/calculator.js 10 / 2');
 }
 
-function isValidNumber(value) {
-  return !Number.isNaN(Number(value));
+function runCLI(argv) {
+  const [, , leftArg, operator, rightArg] = argv;
+
+  if (!leftArg || !operator || !rightArg) {
+    throw new Error('Missing argument(s).');
+  }
+
+  const left = parseOperand(leftArg);
+  const right = parseOperand(rightArg);
+
+  return calculate(left, right, operator);
 }
 
-if (!leftArg || !operator || !rightArg) {
-  console.error('Error: Missing argument(s).');
-  printUsage();
-  process.exit(1);
-}
-
-if (!isValidNumber(leftArg) || !isValidNumber(rightArg)) {
-  console.error('Error: Both operands must be valid numbers.');
-  printUsage();
-  process.exit(1);
-}
-
-const left = Number(leftArg);
-const right = Number(rightArg);
-let result;
-
-switch (operator) {
-  case '+':
-    result = left + right;
-    break;
-  case '-':
-    result = left - right;
-    break;
-  case '*':
-    result = left * right;
-    break;
-  case '/':
-    if (right === 0) {
-      console.error('Error: Division by zero is not allowed.');
-      process.exit(1);
-    }
-    result = left / right;
-    break;
-  default:
-    console.error(`Error: Unsupported operator '${operator}'.`);
+if (require.main === module) {
+  try {
+    const result = runCLI(process.argv);
+    console.log(result);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
     printUsage();
     process.exit(1);
+  }
 }
 
-console.log(result);
+module.exports = {
+  add,
+  subtract,
+  multiply,
+  divide,
+  calculate,
+  parseOperand,
+  runCLI,
+};
